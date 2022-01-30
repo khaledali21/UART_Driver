@@ -77,18 +77,23 @@ UART_ERR_STATE UART_u8SendString(uint8_t* str){
 /*
 * brief: This function is used to receive a string from the device connected to the MCU through RXD, TXD Pins
 * param.: (input) a pointer to a string to hold the string that will be received
-* param.: (input) the size of the string that will be received
+* param.: (input) the character at which MCU stop receiving the string
 * return: (output) the Error state of the function 0 if an error happens and 1 otherwise
 */
-UART_ERR_STATE UART_u8ReceiveString(uint8_t* str, uint8_t size){
+UART_ERR_STATE UART_u8ReceiveString(uint8_t* str, uint8_t stop_char){
 	UART_ERR_STATE u8Status = UART_OK;
 	if(str == NULL){
 		u8Status = UART_ERR;
 	}
 	else{
-		for(uint8_t itr = 0; itr < size && u8Status == UART_OK; ++itr){
-			u8Status = UART_u8ReceiveData(&str[itr]);
+		uint8_t chr, i = 0;
+		u8Status = UART_u8ReceiveData(chr);
+		while(chr != stop_char && u8Status == UART_OK){
+			str[i] = chr;
+			u8Status = UART_u8ReceiveData(chr);
+			i++;
 		}
+		str[i] = '\0';
 	}
 	return u8Status;
 }

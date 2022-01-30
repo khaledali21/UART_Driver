@@ -32,7 +32,7 @@ UART_ERR_STATE UART_u8ReceiveData(uint8_t* data);
 
 UART_ERR_STATE UART_u8SendString(uint8_t* str);
 
-UART_ERR_STATE UART_u8ReceiveString(uint8_t* str, uint8_t size);
+UART_ERR_STATE UART_u8ReceiveString(uint8_t* str, uint8_t stop_char);
 
 void __vector_13(void) __attribute__ ((signal, used));
 
