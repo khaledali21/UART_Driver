@@ -6,9 +6,13 @@
  */ 
 
 #include "UART.h"
-
+//A pointer to callBack function when interrupt happens
 static void (*receivce_CallBack)(uint8_t);
 
+/*
+* brief: This function is used to Initialize the UART driver with custom baudrate and 8-bit data and 1 stop bit
+* param.: (input) the required BaudRate
+*/
 void UART_u8Init(uint32_t BaudRate){
 	uint16_t UBRR_Value = ((UART_F_CPU)/(BaudRate*16UL)-1);
 	UCSRC_REG =	(1 << URSEL_BIT) | (1 << UCSZ1_BIT) | (1 << UCSZ0_BIT);
@@ -17,12 +21,21 @@ void UART_u8Init(uint32_t BaudRate){
 	SET_BIT(UCSRB_REG, TXEN_BIT);
 	SET_BIT(UCSRB_REG, RXEN_BIT);
 }
+/*
+* brief: This function is used to send Data to the device connected to the MCU through RXD, TXD Pins
+* param.: (input) the data that will be sent
+*/
 void UART_u8SendData(uint8_t data){
 	
 	while(GET_BIT(UCSRA_REG, UDRE_BIT) != 1);
 	UDR_REG = data;	
 	while(GET_BIT(UCSRA_REG, TXC_BIT) != 1);
 }
+/*
+* brief: This function is used to receive Data from the device connected to the MCU through RXD, TXD Pins
+* param.: (input) a pointer to a variable to hold the data that will be received
+* return: (output) the Error state of the function 0 if an error happens and 1 otherwise
+*/
 UART_ERR_STATE UART_u8ReceiveData(uint8_t* data){
 	UART_ERR_STATE u8Status = UART_OK;
 	if(data == NULL){
@@ -42,7 +55,11 @@ UART_ERR_STATE UART_u8ReceiveData(uint8_t* data){
 	}	
 	return u8Status;
 }
-
+/*
+* brief: This function is used to send a string to the device connected to the MCU through RXD, TXD Pins
+* param.: (input) a pointer to the string that will be sent
+* return: (output) the Error state of the function 0 if an error happens and 1 otherwise
+*/
 UART_ERR_STATE UART_u8SendString(uint8_t* str){
 	UART_ERR_STATE u8Status = UART_OK;
 	if(str == NULL){
@@ -57,7 +74,12 @@ UART_ERR_STATE UART_u8SendString(uint8_t* str){
 	}
 	return u8Status;
 }
-
+/*
+* brief: This function is used to receive a string from the device connected to the MCU through RXD, TXD Pins
+* param.: (input) a pointer to a string to hold the string that will be received
+* param.: (input) the size of the string that will be received
+* return: (output) the Error state of the function 0 if an error happens and 1 otherwise
+*/
 UART_ERR_STATE UART_u8ReceiveString(uint8_t* str, uint8_t size){
 	UART_ERR_STATE u8Status = UART_OK;
 	if(str == NULL){
@@ -70,7 +92,11 @@ UART_ERR_STATE UART_u8ReceiveString(uint8_t* str, uint8_t size){
 	}
 	return u8Status;
 }
-
+/*
+* brief: This function is used to enable the interrupt that occurs when the MCU receives data through UART
+* param.: (input) a pointer to to the function that will be called when the interrupt occurs
+* return: (output) the Error state of the function 0 if an error happens and 1 otherwise
+*/
 UART_ERR_STATE UART_u8EnableReceiveInterrupt(void (*fncallBack)(uint8_t)){
 	UART_ERR_STATE u8Status = UART_OK;
 	if(fncallBack == NULL){
@@ -83,7 +109,9 @@ UART_ERR_STATE UART_u8EnableReceiveInterrupt(void (*fncallBack)(uint8_t)){
 	}
 	return u8Status;
 }
-
+/*
+* brief: This function is used to disable the interrupt that occurs when the MCU receives data through UART
+*/
 void UART_u8DisableReceiveInterrupt(void){
 	receivce_CallBack = NULL;
 	CLR_BIT(UCSRB_REG, RXCIE_BIT);
